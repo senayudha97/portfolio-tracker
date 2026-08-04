@@ -16,18 +16,18 @@
   },
   "prices": {
     "Saham IDX": {
-      "price": 6256.79,
+      "price": 6274,
       "currency": "IDR",
       "note": "IHSG (Yahoo live)",
       "live": true,
-      "updatedAt": "2026-08-04T03:00:26.185Z"
+      "updatedAt": "2026-08-04T04:24:16.976Z"
     },
     "Saham US (S&P500)": {
       "price": 7600.5,
       "currency": "USD",
       "note": "S&P500 (Yahoo live)",
       "live": true,
-      "updatedAt": "2026-08-04T03:00:26.185Z"
+      "updatedAt": "2026-08-04T04:24:16.976Z"
     },
     "Obligasi": {
       "price": 1000,
@@ -42,18 +42,18 @@
       "live": false
     },
     "Emas": {
-      "price": 2380708.34,
+      "price": 2382697.13,
       "currency": "IDR",
       "note": "Emas per gram (Yahoo GC=F live)",
       "live": true,
-      "updatedAt": "2026-08-04T03:00:26.185Z"
+      "updatedAt": "2026-08-04T04:24:16.976Z"
     },
     "Crypto": {
-      "price": 63756,
+      "price": 63812,
       "currency": "USD",
       "note": "BTC (CoinGecko live)",
       "live": true,
-      "updatedAt": "2026-08-04T03:00:26.185Z"
+      "updatedAt": "2026-08-04T04:24:16.976Z"
     },
     "Deposito": {
       "price": 1,
@@ -86,11 +86,11 @@
       "live": false
     },
     "Valuta Asing": {
-      "price": 17986,
+      "price": 18033,
       "currency": "IDR",
       "note": "USD/IDR (live)",
       "live": true,
-      "updatedAt": "2026-08-04T03:00:26.185Z"
+      "updatedAt": "2026-08-04T04:24:16.976Z"
     }
   }
 }

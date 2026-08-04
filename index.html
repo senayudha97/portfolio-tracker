@@ -3,69 +3,73 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>🌸 Portfolio Rebalancing Tracker</title>
+<title>Portfolio Rebalancing Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    --bg:#fdf6f9; --card:#ffffff; --ink:#5b5670; --muted:#9a94ad;
-    --pink:#ffc2d1; --mint:#b8e6d5; --sky:#c3e0f7; --lemon:#ffe8a3;
-    --lav:#d9cdf5; --peach:#ffd6bb;
-    --ok:#7fd1ae; --under:#ffd98e; --over:#ff9fb0;
+    --bg:#0f172a; --card:#1e293b; --line:#334155; --ink:#e2e8f0; --muted:#94a3b8;
+    --blue:#3b82f6; --blue-d:#2563eb; --emerald:#10b981; --amber:#f59e0b; --red:#ef4444;
+    --ok:#10b981; --under:#f59e0b; --over:#ef4444;
   }
   *{box-sizing:border-box}
   body{
-    margin:0; font-family:'Quicksand',sans-serif; color:var(--ink);
-    background:linear-gradient(160deg,#fdf6f9 0%,#f2f8fd 55%,#f6fbf7 100%);
+    margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--ink);
+    letter-spacing:-.01em;
+    background:var(--bg);
+    background-image:linear-gradient(180deg,#0f172a 0%,#111c33 60%,#0f172a 100%);
     min-height:100vh; padding:28px 16px 60px;
   }
   .wrap{max-width:1060px;margin:0 auto}
-  h1{font-size:30px;margin:0 0 4px;font-weight:700}
+  h1{font-size:30px;margin:0 0 4px;font-weight:800;letter-spacing:-.03em;color:#f8fafc}
   .sub{color:var(--muted);margin:0 0 24px;font-size:15px}
   .card{
-    background:var(--card);border-radius:24px;padding:22px 24px;margin-bottom:20px;
-    box-shadow:0 10px 30px rgba(180,160,200,.13);
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:22px 24px;margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
   }
-  .card h2{font-size:18px;margin:0 0 16px;font-weight:700}
+  .card h2{font-size:16px;margin:0 0 16px;font-weight:700;letter-spacing:-.01em;color:#f1f5f9}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   @media(max-width:860px){.grid2{grid-template-columns:1fr}}
   input,select{
-    font-family:inherit;font-size:15px;padding:12px 16px;border-radius:16px;
-    border:2px solid #f0eaf5;background:#fbf8fd;color:var(--ink);outline:none;width:100%;
+    font-family:inherit;font-size:15px;padding:11px 14px;border-radius:8px;
+    border:1px solid var(--line);background:#0f172a;color:var(--ink);outline:none;width:100%;
   }
-  input:focus,select:focus{border-color:var(--pink)}
+  input::placeholder{color:#64748b}
+  option{background:#0f172a;color:var(--ink)}
+  input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.25)}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
   .row>*{flex:1;min-width:150px}
   button{
-    font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;border:none;
-    border-radius:16px;padding:12px 22px;background:var(--pink);color:#7a4256;
-    transition:transform .12s ease, filter .12s;
+    font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;border:1px solid transparent;
+    border-radius:8px;padding:11px 20px;background:var(--blue-d);color:#fff;
+    transition:filter .12s, background .12s;
   }
-  button:hover{transform:translateY(-2px);filter:brightness(1.04)}
-  button.mini{padding:6px 12px;font-size:12px;border-radius:12px;background:var(--sky);color:#3d6786}
-  button.del{background:#ffdde3;color:#b8566c}
+  button:hover{filter:brightness(1.12)}
+  button.mini{padding:6px 12px;font-size:12px;border-radius:6px;background:#334155;color:#e2e8f0;border-color:#475569}
+  button.del{background:#7f1d1d;color:#fecaca;border-color:#991b1b}
   .badge{
-    display:inline-flex;align-items:center;gap:10px;font-size:22px;font-weight:700;
-    padding:18px 30px;border-radius:26px;
+    display:inline-flex;align-items:center;gap:10px;font-size:20px;font-weight:700;
+    padding:14px 22px;border-radius:10px;border:1px solid;
   }
-  .badge.healthy{background:linear-gradient(120deg,#c8f0dd,#e3f7ee);color:#2f7d5d}
-  .badge.sick{background:linear-gradient(120deg,#ffdde3,#fff0e6);color:#b8566c}
-  .total{font-size:26px;font-weight:700;margin-top:12px}
-  .cls-row{padding:12px 0;border-bottom:1px dashed #f0eaf5}
+  .badge.healthy{background:rgba(16,185,129,.12);border-color:#10b981;color:#34d399}
+  .badge.sick{background:rgba(239,68,68,.12);border-color:#ef4444;color:#f87171}
+  .total{font-size:26px;font-weight:700;margin-top:12px;color:#f8fafc}
+  .cls-row{padding:12px 0;border-bottom:1px solid #293548}
   .cls-row:last-child{border-bottom:none}
   .cls-head{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:7px;gap:8px}
-  .bar{height:12px;border-radius:99px;background:#f3eff8;overflow:hidden}
-  .bar>i{display:block;height:100%;border-radius:99px;transition:width .4s ease}
+  .bar{height:8px;border-radius:4px;background:#0f172a;border:1px solid #293548;overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:4px;transition:width .4s ease}
   .s-ok>i{background:var(--ok)} .s-under>i{background:var(--under)} .s-over>i{background:var(--over)}
-  .pill{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:700}
-  .p-ok{background:#dff5ea;color:#2f7d5d}
-  .p-under{background:#fff2d4;color:#a67c22}
-  .p-over{background:#ffe1e7;color:#b8566c}
+  .pill{font-size:11px;padding:3px 8px;border-radius:5px;font-weight:600;font-family:ui-monospace,Menlo,monospace;letter-spacing:0}
+  .p-ok{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4)}
+  .p-under{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.4)}
+  .p-over{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.4)}
   table{width:100%;border-collapse:collapse;font-size:14px}
-  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
-  td{padding:10px;border-top:1px solid #f5f0f8}
-  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fbf8fd;border-radius:16px;margin-bottom:8px;font-size:14px}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  td{padding:10px;border-top:1px solid #293548}
+  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0f172a;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:14px}
   .muted{color:var(--muted);font-size:12px}
   .empty{color:var(--muted);text-align:center;padding:22px;font-size:14px}
 </style>
@@ -79,7 +83,7 @@ import htm from 'https://esm.sh/htm@3.1.1';
 const html = htm.bind(h);
 
 const CLASSES = ["Saham IDX","Saham US (S&P500)","Obligasi","Reksadana","Emas","Crypto","Deposito","Properti","Cash","P2P Lending","SBN","Valuta Asing"];
-const PASTEL = ["#ffc2d1","#c3e0f7","#b8e6d5","#ffe8a3","#d9cdf5","#ffd6bb","#a8dadc","#f7c8e0","#cdeac0","#ffd3b6","#bde0fe","#e4c1f9"];
+const PASTEL = ["#3b82f6","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4","#64748b","#84cc16","#f97316","#14b8a6","#a855f7","#eab308"];
 const rp = n => 'Rp ' + Number(n||0).toLocaleString('id-ID');
 
 function Donut({ computed }) {
@@ -88,11 +92,11 @@ function Donut({ computed }) {
     const labels=[], data=[], colors=[];
     CLASSES.forEach((c,i)=>{ const v=computed[c]; if(v&&v.amount>0){labels.push(c);data.push(v.amount);colors.push(PASTEL[i%PASTEL.length]);} });
     if (chart.current) chart.current.destroy();
-    if (!labels.length) { labels.push('Belum ada data'); data.push(1); colors.push('#eee6f2'); }
+    if (!labels.length) { labels.push('Belum ada data'); data.push(1); colors.push('#334155'); }
     chart.current = new Chart(ref.current, {
       type:'doughnut',
-      data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:4,borderColor:'#fff'}]},
-      options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{family:'Quicksand',size:12},boxWidth:12,padding:12,usePointStyle:true}}}}
+      data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#1e293b'}]},
+      options:{cutout:'66%',plugins:{legend:{position:'bottom',labels:{color:'#cbd5e1',font:{family:'Inter',size:12},boxWidth:10,padding:12,usePointStyle:true}}}}
     });
   }, [JSON.stringify(computed)]);
   return html`<canvas id="donut" ref=${ref} height="260"></canvas>`;
@@ -110,7 +114,7 @@ function App() {
 
   const add = async () => {
     const amt = Number(String(amount).replace(/\D/g,''));
-    if (!amt) return alert('Isi nominal dulu ya 🌸');
+    if (!amt) return alert('Isi nominal dulu.');
     const r = await fetch('/api/portfolio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt,class:cls})});
     setD(await r.json()); setAmount('');
   };
@@ -124,11 +128,11 @@ function App() {
     setD(await r.json());
   };
 
-  if (!d) return html`<div class="wrap"><p class="empty">Memuat... 🌷</p></div>`;
+  if (!d) return html`<div class="wrap"><p class="empty">Memuat...</p></div>`;
 
   return html`<div class="wrap">
-    <h1>🌸 Portfolio Rebalancing Tracker</h1>
-    <p class="sub">Pantau porsi asset kamu, biar tetap seimbang dan sehat ✨</p>
+    <h1>Portfolio Rebalancing Tracker</h1>
+    <p class="sub">Pantau alokasi aset dan jaga portofolio tetap seimbang.</p>
 
     <div class="card" style="text-align:center">
       <div id="health" class=${'badge '+(d.healthy?'healthy':'sick')}>
