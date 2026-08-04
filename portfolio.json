@@ -1,11 +1,11 @@
 {
   "targets": {
-    "Saham IDX": 30,
-    "Saham US (S&P500)": 0,
+    "Saham IDX": 20,
+    "Saham US (S&P500)": 20,
     "Obligasi": 20,
     "Reksadana": 0,
     "Emas": 15,
-    "Crypto": 5,
+    "Crypto": 50,
     "Deposito": 20,
     "Properti": 0,
     "Cash": 10,
@@ -15,18 +15,18 @@
   },
   "prices": {
     "Saham IDX": {
-      "price": 6275.16,
+      "price": 6270.16,
       "currency": "IDR",
       "note": "IHSG (Yahoo live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:32:43.786Z"
+      "updatedAt": "2026-08-04T06:28:53.943Z"
     },
     "Saham US (S&P500)": {
       "price": 7600.5,
       "currency": "USD",
       "note": "S&P500 (Yahoo live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:32:43.786Z"
+      "updatedAt": "2026-08-04T06:28:53.943Z"
     },
     "Obligasi": {
       "price": 1000,
@@ -42,18 +42,18 @@
       "live": false
     },
     "Emas": {
-      "price": 2384816.87,
+      "price": 2388005.98,
       "currency": "IDR",
       "note": "Emas per gram (Yahoo GC=F live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:32:43.786Z"
+      "updatedAt": "2026-08-04T06:28:53.943Z"
     },
     "Crypto": {
-      "price": 63784,
+      "price": 63771,
       "currency": "USD",
       "note": "BTC (CoinGecko live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:32:43.786Z"
+      "updatedAt": "2026-08-04T06:28:53.943Z"
     },
     "Deposito": {
       "price": 1,
@@ -90,7 +90,7 @@
       "currency": "IDR",
       "note": "USD/IDR (live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:32:43.786Z"
+      "updatedAt": "2026-08-04T06:28:53.943Z"
     }
   },
   "history": [
@@ -129,20 +129,110 @@
         "Valuta Asing": 0
       },
       "total": 15000000
+    },
+    {
+      "ts": "2026-08-04T04:35:46.824Z",
+      "values": {
+        "Saham IDX": 10000000,
+        "Saham US (S&P500)": 0,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 5000000,
+        "Crypto": 40000000,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 0
+      },
+      "total": 55000000
+    },
+    {
+      "ts": "2026-08-04T06:17:36.966Z",
+      "values": {
+        "Saham IDX": 10000000,
+        "Saham US (S&P500)": 8000000,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 5000000,
+        "Crypto": 40000000,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 0
+      },
+      "total": 63000000
+    },
+    {
+      "ts": "2026-08-04T06:18:35.052Z",
+      "values": {
+        "Saham IDX": 10000000,
+        "Saham US (S&P500)": 8000000,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 0,
+        "Crypto": 40000000,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 0
+      },
+      "total": 58000000
+    },
+    {
+      "ts": "2026-08-04T06:18:53.092Z",
+      "values": {
+        "Saham IDX": 5000000,
+        "Saham US (S&P500)": 8000000,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 0,
+        "Crypto": 40000000,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 0
+      },
+      "total": 53000000
+    },
+    {
+      "ts": "2026-08-04T06:19:09.945Z",
+      "values": {
+        "Saham IDX": 5000000,
+        "Saham US (S&P500)": 8000000,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 0,
+        "Crypto": 40000000,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 2000000
+      },
+      "total": 55000000
     }
   ],
   "values": {
-    "Saham IDX": 10000000,
-    "Saham US (S&P500)": 0,
+    "Saham IDX": 5000000,
+    "Saham US (S&P500)": 8000000,
     "Obligasi": 0,
     "Reksadana": 0,
-    "Emas": 5000000,
-    "Crypto": 0,
+    "Emas": 0,
+    "Crypto": 40000000,
     "Deposito": 0,
     "Properti": 0,
     "Cash": 0,
     "P2P Lending": 0,
     "SBN": 0,
-    "Valuta Asing": 0
+    "Valuta Asing": 2000000
   }
 }

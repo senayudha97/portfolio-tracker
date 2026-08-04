@@ -72,6 +72,20 @@
   .entry{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0f172a;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:14px}
   .muted{color:var(--muted);font-size:12px}
   .empty{color:var(--muted);text-align:center;padding:22px;font-size:14px}
+  canvas{max-width:100%!important}
+  @media(max-width:640px){
+    html,body{overflow-x:hidden}
+    table,tbody,tr,td{display:block;width:100%}
+    thead{display:none}
+    table{font-size:13px}
+    tbody tr{background:#0f172a;border:1px solid var(--line);border-radius:10px;padding:4px 2px;margin-bottom:10px}
+    tbody tr:last-child{margin-bottom:0}
+    td{border-top:none;border-bottom:1px solid #293548;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right}
+    td:last-child{border-bottom:none;justify-content:flex-end}
+    td::before{content:attr(data-label);font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;text-align:left;flex:0 0 auto}
+    td:last-child::before{content:''}
+    td input[type=number]{width:130px!important;max-width:55%}
+  }
 </style>
 </head>
 <body>
@@ -216,17 +230,17 @@ function App() {
         ${CLASSES.map(c=>{ const p=d.prices[c]||{};
           const hasPrice = p.price!==null && p.price!==undefined && p.price!=='';
           return html`<tr>
-            <td style="font-weight:600">${c}</td>
-            <td>${editing===c
+            <td data-label="Asset Class" style="font-weight:600">${c}</td>
+            <td data-label="Origin Price">${editing===c
               ? html`<input type="number" value=${ep} onInput=${e=>setEp(e.target.value)} style="width:130px;padding:5px 10px" />`
               : (hasPrice ? Number(p.price).toLocaleString('id-ID') : '-')}</td>
-            <td>${p.currency||'-'}</td>
-            <td>${p.live
+            <td data-label="Currency">${p.currency||'-'}</td>
+            <td data-label="Status">${p.live
               ? html`<span class="pill p-ok" title="harga otomatis dari API">🟢 LIVE</span>`
               : html`<span class="muted">static</span>`}</td>
-            <td class="muted">${p.updatedAt ? new Date(p.updatedAt).toLocaleString('id-ID') : '-'}</td>
-            <td class="muted">${p.note||'-'}</td>
-            <td>${editing===c
+            <td data-label="Updated" class="muted">${p.updatedAt ? new Date(p.updatedAt).toLocaleString('id-ID') : '-'}</td>
+            <td data-label="Note" class="muted">${p.note||'-'}</td>
+            <td data-label="">${editing===c
               ? html`<button class="mini" onClick=${()=>savePrice(c)}>simpan</button>`
               : html`<button class="mini" onClick=${()=>{setEditing(c);setEp(p.price);}}>edit</button>`}</td>
           </tr>`;
