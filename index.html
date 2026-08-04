@@ -90,7 +90,7 @@ function Donut({ computed }) {
   const ref = useRef(null); const chart = useRef(null);
   useEffect(() => {
     const labels=[], data=[], colors=[];
-    CLASSES.forEach((c,i)=>{ const v=computed[c]; if(v&&v.amount>0){labels.push(c);data.push(v.amount);colors.push(PASTEL[i%PASTEL.length]);} });
+    CLASSES.forEach((c,i)=>{ const v=computed[c]; if(v&&v.value>0){labels.push(c);data.push(v.value);colors.push(PASTEL[i%PASTEL.length]);} });
     if (chart.current) chart.current.destroy();
     if (!labels.length) { labels.push('Belum ada data'); data.push(1); colors.push('#334155'); }
     chart.current = new Chart(ref.current, {
@@ -102,23 +102,49 @@ function Donut({ computed }) {
   return html`<canvas id="donut" ref=${ref} height="260"></canvas>`;
 }
 
+function Growth({ history }) {
+  const ref = useRef(null); const chart = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chart.current) chart.current.destroy();
+    const labels = history.map(x => new Date(x.ts).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}));
+    const data = history.map(x => x.total);
+    chart.current = new Chart(ref.current, {
+      type:'line',
+      data:{labels,datasets:[{label:'Total Portofolio',data,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.15)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#3b82f6',borderWidth:2}]},
+      options:{
+        plugins:{
+          legend:{labels:{color:'#cbd5e1',font:{family:'Inter',size:12},usePointStyle:true,boxWidth:10}},
+          tooltip:{callbacks:{label:c=>'Rp '+Number(c.parsed.y||0).toLocaleString('id-ID')}}
+        },
+        scales:{
+          x:{ticks:{color:'#94a3b8',font:{family:'Inter',size:10},maxTicksLimit:8},grid:{color:'#293548'}},
+          y:{ticks:{color:'#94a3b8',font:{family:'Inter',size:10},callback:v=>'Rp '+Number(v).toLocaleString('id-ID')},grid:{color:'#293548'}}
+        }
+      }
+    });
+  }, [JSON.stringify(history)]);
+  return html`<canvas id="growth" ref=${ref} height="110"></canvas>`;
+}
+
 function App() {
   const [d,setD] = useState(null);
-  const [amount,setAmount] = useState('');
-  const [cls,setCls] = useState(CLASSES[0]);
+  const [hist,setHist] = useState([]);
+  const [drafts,setDrafts] = useState({});
   const [editing,setEditing] = useState(null);
   const [ep,setEp] = useState('');
 
+  const loadHist = () => fetch('/api/history').then(r=>r.json()).then(j=>setHist(j.history||[]));
   const load = () => fetch('/api/portfolio').then(r=>r.json()).then(setD);
-  useEffect(()=>{ load(); const t=setInterval(load,60000); return ()=>clearInterval(t); },[]);
+  useEffect(()=>{ load(); loadHist(); const t=setInterval(load,60000); return ()=>clearInterval(t); },[]);
 
-  const add = async () => {
-    const amt = Number(String(amount).replace(/\D/g,''));
-    if (!amt) return alert('Isi nominal dulu.');
-    const r = await fetch('/api/portfolio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt,class:cls})});
-    setD(await r.json()); setAmount('');
+  const updateValue = async c => {
+    const raw = drafts[c];
+    const val = Number(String(raw===undefined||raw===null?'':raw).replace(/\D/g,''));
+    if (!isFinite(val)) return alert('Nilai tidak valid.');
+    const r = await fetch('/api/portfolio/value',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({class:c,value:val})});
+    if (r.ok) { setD(await r.json()); setDrafts(s=>({...s,[c]:undefined})); loadHist(); }
   };
-  const del = async id => { const r = await fetch('/api/portfolio/'+id,{method:'DELETE'}); if(r.ok) setD(await r.json()); };
   const savePrice = async c => {
     const r = await fetch('/api/prices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[c]:{price:Number(ep)||0}})});
     setD(await r.json()); setEditing(null);
@@ -143,15 +169,19 @@ function App() {
     </div>
 
     <div class="card">
-      <h2>➕ Tambah Nominal</h2>
-      <div class="row">
-        <input placeholder="Nominal (Rp)" value=${amount}
-          onInput=${e=>setAmount(e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.'))} />
-        <select value=${cls} onChange=${e=>setCls(e.target.value)}>
-          ${CLASSES.map(c=>html`<option value=${c}>${c}</option>`)}
-        </select>
-        <button onClick=${add} style="flex:0 0 auto">Tambah 🎀</button>
-      </div>
+      <h2>✏️ Nilai Terkini per Asset Class</h2>
+      <div class="muted" style="margin-bottom:12px">Isi nilai Rupiah terkini tiap kelas. Setiap update menimpa nilai lama dan tersimpan ke history.</div>
+      ${CLASSES.map(c=>{ const cur = (d.values&&d.values[c])||0;
+        const dv = drafts[c];
+        const shown = dv===undefined||dv===null ? (cur?Number(cur).toLocaleString('id-ID'):'') : dv;
+        return html`<div class="row" style="margin-bottom:8px">
+          <span style="flex:1.4;min-width:150px;font-weight:600;font-size:14px">${c}
+            <span class="muted" style="display:block;font-weight:400">sekarang: ${rp(cur)}</span></span>
+          <input placeholder="Nilai (Rp)" value=${shown}
+            onInput=${e=>{const v=e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); setDrafts(s=>({...s,[c]:v}));}} />
+          <button class="mini" style="flex:0 0 auto" onClick=${()=>updateValue(c)}>Update</button>
+        </div>`;
+      })}
     </div>
 
     <div class="grid2">
@@ -162,14 +192,14 @@ function App() {
       <div class="card">
         <h2>📊 Aktual vs Target</h2>
         ${CLASSES.map(c=>{ const v=d.computed[c]; if(!v) return null;
-          if (v.amount===0 && v.target===0) return null;
+          if (v.value===0 && v.target===0) return null;
           return html`<div class="cls-row">
             <div class="cls-head">
               <span>${c} <span class=${'pill p-'+v.status}>${v.status==='ok'?'pas':v.status==='under'?'kurang':'lebih'}</span></span>
               <span>${v.pct}% <span class="muted">/ ${v.target}%</span></span>
             </div>
             <div class=${'bar s-'+v.status}><i style=${'width:'+Math.min(100,v.pct)+'%'}></i></div>
-            <div class="muted" style="margin-top:5px">${rp(v.amount)} · selisih ${v.diff>0?'+':''}${v.diff}%
+            <div class="muted" style="margin-top:5px">${rp(v.value)} · selisih ${v.diff>0?'+':''}${v.diff}%
               <input type="number" value=${v.target} style="width:70px;display:inline-block;padding:3px 8px;font-size:12px;margin-left:8px"
                 onChange=${e=>saveTarget(c,e.target.value)} /> % target
             </div>
@@ -206,14 +236,11 @@ function App() {
     </div>
 
     <div class="card">
-      <h2>🧾 Daftar Entry (${d.entries.length})</h2>
-      ${d.entries.length===0
-        ? html`<div class="empty">Belum ada entry. Yuk tambah yang pertama! 🌱</div>`
-        : d.entries.slice().reverse().map(e=>html`<div class="entry">
-            <span><b>${rp(e.amount)}</b> · ${e.class}
-              <span class="muted"> · ${new Date(e.createdAt).toLocaleString('id-ID')}</span></span>
-            <button class="del mini" onClick=${()=>del(e.id)}>hapus</button>
-          </div>`)}
+      <h2>📈 Pertumbuhan Portofolio</h2>
+      ${hist.length===0
+        ? html`<div class="empty">Belum ada history. Update nilai asset dulu ya 🌱</div>`
+        : html`<${Growth} history=${hist} />`}
+      <div class="muted" style="margin-top:8px">${hist.length} snapshot tersimpan (maks 500)</div>
     </div>
   </div>`;
 }

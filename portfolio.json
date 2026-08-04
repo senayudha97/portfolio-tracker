@@ -1,5 +1,4 @@
 {
-  "entries": [],
   "targets": {
     "Saham IDX": 30,
     "Saham US (S&P500)": 0,
@@ -16,24 +15,25 @@
   },
   "prices": {
     "Saham IDX": {
-      "price": 6274,
+      "price": 6275.16,
       "currency": "IDR",
       "note": "IHSG (Yahoo live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:24:16.976Z"
+      "updatedAt": "2026-08-04T04:32:43.786Z"
     },
     "Saham US (S&P500)": {
       "price": 7600.5,
       "currency": "USD",
       "note": "S&P500 (Yahoo live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:24:16.976Z"
+      "updatedAt": "2026-08-04T04:32:43.786Z"
     },
     "Obligasi": {
       "price": 1000,
       "currency": "IDR",
       "note": "unit",
-      "live": false
+      "live": false,
+      "updatedAt": "2026-08-04T04:27:43.012Z"
     },
     "Reksadana": {
       "price": 1000,
@@ -42,18 +42,18 @@
       "live": false
     },
     "Emas": {
-      "price": 2382697.13,
+      "price": 2384816.87,
       "currency": "IDR",
       "note": "Emas per gram (Yahoo GC=F live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:24:16.976Z"
+      "updatedAt": "2026-08-04T04:32:43.786Z"
     },
     "Crypto": {
-      "price": 63812,
+      "price": 63784,
       "currency": "USD",
       "note": "BTC (CoinGecko live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:24:16.976Z"
+      "updatedAt": "2026-08-04T04:32:43.786Z"
     },
     "Deposito": {
       "price": 1,
@@ -86,11 +86,63 @@
       "live": false
     },
     "Valuta Asing": {
-      "price": 18033,
+      "price": 18035,
       "currency": "IDR",
       "note": "USD/IDR (live)",
       "live": true,
-      "updatedAt": "2026-08-04T04:24:16.976Z"
+      "updatedAt": "2026-08-04T04:32:43.786Z"
     }
+  },
+  "history": [
+    {
+      "ts": "2026-08-04T04:33:08.934Z",
+      "values": {
+        "Saham IDX": 10000000,
+        "Saham US (S&P500)": 0,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 0,
+        "Crypto": 0,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 0
+      },
+      "total": 10000000
+    },
+    {
+      "ts": "2026-08-04T04:33:08.943Z",
+      "values": {
+        "Saham IDX": 10000000,
+        "Saham US (S&P500)": 0,
+        "Obligasi": 0,
+        "Reksadana": 0,
+        "Emas": 5000000,
+        "Crypto": 0,
+        "Deposito": 0,
+        "Properti": 0,
+        "Cash": 0,
+        "P2P Lending": 0,
+        "SBN": 0,
+        "Valuta Asing": 0
+      },
+      "total": 15000000
+    }
+  ],
+  "values": {
+    "Saham IDX": 10000000,
+    "Saham US (S&P500)": 0,
+    "Obligasi": 0,
+    "Reksadana": 0,
+    "Emas": 5000000,
+    "Crypto": 0,
+    "Deposito": 0,
+    "Properti": 0,
+    "Cash": 0,
+    "P2P Lending": 0,
+    "SBN": 0,
+    "Valuta Asing": 0
   }
 }

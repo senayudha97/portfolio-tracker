@@ -7,30 +7,59 @@ const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), '
 const DATA_FILE = path.join(__dirname, 'portfolio.json');
 const TOLERANCE = 5;
 const POLL_MS = 5 * 60 * 1000;
+const MAX_HISTORY = 500;
 
 const app = express();
 app.use(express.json());
 
 function load() {
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  const db = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  db.targets = db.targets || {};
+  db.prices = db.prices || {};
+  db.history = Array.isArray(db.history) ? db.history : [];
+  db.values = db.values || {};
+  // ensure all classes present
+  Object.keys(db.targets).forEach(c => {
+    if (typeof db.values[c] !== 'number') db.values[c] = 0;
+  });
+  // backward compat: migrate legacy entries -> values
+  if (Array.isArray(db.entries) && db.entries.length) {
+    db.entries.forEach(e => {
+      const c = e && e.class;
+      if (c && c in db.values) db.values[c] += Number(e.amount || 0);
+    });
+    db.entries = [];
+    save(db);
+  }
+  delete db.entries;
+  return db;
 }
 function save(d) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2));
 }
+function sumValues(values) {
+  return Object.values(values).reduce((s, v) => s + Number(v || 0), 0);
+}
+function pushHistory(db) {
+  const total = sumValues(db.values);
+  db.history.push({ ts: new Date().toISOString(), values: { ...db.values }, total });
+  while (db.history.length > MAX_HISTORY) db.history.shift();
+}
 function compute(db) {
-  const total = db.entries.reduce((s, e) => s + Number(e.amount || 0), 0);
+  const total = sumValues(db.values);
   const computed = {};
   Object.keys(db.targets).forEach(cls => {
-    const amount = db.entries.filter(e => e.class === cls)
-      .reduce((s, e) => s + Number(e.amount || 0), 0);
-    const pct = total > 0 ? (amount / total) * 100 : 0;
+    const value = Number(db.values[cls] || 0);
+    const pct = total > 0 ? (value / total) * 100 : 0;
     const target = Number(db.targets[cls] || 0);
     const diff = pct - target;
     let status = 'ok';
     if (diff < -TOLERANCE) status = 'under';
     else if (diff > TOLERANCE) status = 'over';
     computed[cls] = {
-      amount,
+      class: cls,
+      value,
+      amount: value, // alias, kompatibilitas
       pct: Math.round(pct * 100) / 100,
       target,
       diff: Math.round(diff * 100) / 100,
@@ -44,13 +73,18 @@ function payload() {
   const db = load();
   const { total, computed, healthy } = compute(db);
   return {
-    entries: db.entries,
+    values: db.values,
     targets: db.targets,
     prices: db.prices,
     total,
     computed,
     healthy,
-    tolerance: TOLERANCE
+    tolerance: TOLERANCE,
+    historySummary: {
+      count: db.history.length,
+      first: db.history[0] ? db.history[0].ts : null,
+      last: db.history[db.history.length - 1] ? db.history[db.history.length - 1].ts : null
+    }
   };
 }
 
@@ -58,28 +92,30 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 app.get('/api/portfolio', (req, res) => res.json(payload()));
 
-app.post('/api/portfolio', (req, res) => {
-  const { amount, class: cls } = req.body || {};
+app.get('/api/history', (req, res) => {
   const db = load();
-  const amt = Number(amount);
-  if (!amt || amt <= 0 || !cls || !(cls in db.targets)) {
-    return res.status(400).json({ error: 'amount (>0) dan class valid wajib diisi' });
+  res.json({ history: db.history });
+});
+
+app.post('/api/portfolio/value', (req, res) => {
+  const { class: cls, value } = req.body || {};
+  const db = load();
+  const val = Number(value);
+  if (!cls || !(cls in db.targets) || !isFinite(val) || val < 0) {
+    return res.status(400).json({ error: 'class valid dan value (>=0) wajib diisi' });
   }
-  db.entries.push({
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
-    amount: amt,
-    class: cls,
-    createdAt: new Date().toISOString()
-  });
+  db.values[cls] = val;
+  pushHistory(db);
   save(db);
   res.json(payload());
 });
 
-app.delete('/api/portfolio/:id', (req, res) => {
+app.delete('/api/portfolio/value/:class', (req, res) => {
+  const cls = req.params.class;
   const db = load();
-  const before = db.entries.length;
-  db.entries = db.entries.filter(e => e.id !== req.params.id);
-  if (db.entries.length === before) return res.status(404).json({ error: 'entry tidak ditemukan' });
+  if (!(cls in db.targets)) return res.status(404).json({ error: 'class tidak ditemukan' });
+  db.values[cls] = 0;
+  pushHistory(db);
   save(db);
   res.json(payload());
 });
