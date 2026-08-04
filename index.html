@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🌸 Portfolio Rebalancing Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{
+    --bg:#fdf6f9; --card:#ffffff; --ink:#5b5670; --muted:#9a94ad;
+    --pink:#ffc2d1; --mint:#b8e6d5; --sky:#c3e0f7; --lemon:#ffe8a3;
+    --lav:#d9cdf5; --peach:#ffd6bb;
+    --ok:#7fd1ae; --under:#ffd98e; --over:#ff9fb0;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:'Quicksand',sans-serif; color:var(--ink);
+    background:linear-gradient(160deg,#fdf6f9 0%,#f2f8fd 55%,#f6fbf7 100%);
+    min-height:100vh; padding:28px 16px 60px;
+  }
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{font-size:30px;margin:0 0 4px;font-weight:700}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:15px}
+  .card{
+    background:var(--card);border-radius:24px;padding:22px 24px;margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(180,160,200,.13);
+  }
+  .card h2{font-size:18px;margin:0 0 16px;font-weight:700}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  input,select{
+    font-family:inherit;font-size:15px;padding:12px 16px;border-radius:16px;
+    border:2px solid #f0eaf5;background:#fbf8fd;color:var(--ink);outline:none;width:100%;
+  }
+  input:focus,select:focus{border-color:var(--pink)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .row>*{flex:1;min-width:150px}
+  button{
+    font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;border:none;
+    border-radius:16px;padding:12px 22px;background:var(--pink);color:#7a4256;
+    transition:transform .12s ease, filter .12s;
+  }
+  button:hover{transform:translateY(-2px);filter:brightness(1.04)}
+  button.mini{padding:6px 12px;font-size:12px;border-radius:12px;background:var(--sky);color:#3d6786}
+  button.del{background:#ffdde3;color:#b8566c}
+  .badge{
+    display:inline-flex;align-items:center;gap:10px;font-size:22px;font-weight:700;
+    padding:18px 30px;border-radius:26px;
+  }
+  .badge.healthy{background:linear-gradient(120deg,#c8f0dd,#e3f7ee);color:#2f7d5d}
+  .badge.sick{background:linear-gradient(120deg,#ffdde3,#fff0e6);color:#b8566c}
+  .total{font-size:26px;font-weight:700;margin-top:12px}
+  .cls-row{padding:12px 0;border-bottom:1px dashed #f0eaf5}
+  .cls-row:last-child{border-bottom:none}
+  .cls-head{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:7px;gap:8px}
+  .bar{height:12px;border-radius:99px;background:#f3eff8;overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:99px;transition:width .4s ease}
+  .s-ok>i{background:var(--ok)} .s-under>i{background:var(--under)} .s-over>i{background:var(--over)}
+  .pill{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:700}
+  .p-ok{background:#dff5ea;color:#2f7d5d}
+  .p-under{background:#fff2d4;color:#a67c22}
+  .p-over{background:#ffe1e7;color:#b8566c}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  td{padding:10px;border-top:1px solid #f5f0f8}
+  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fbf8fd;border-radius:16px;margin-bottom:8px;font-size:14px}
+  .muted{color:var(--muted);font-size:12px}
+  .empty{color:var(--muted);text-align:center;padding:22px;font-size:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+import { h, render } from 'https://esm.sh/preact@10.19.3';
+import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.19.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+const html = htm.bind(h);
+
+const CLASSES = ["Saham IDX","Saham US (S&P500)","Obligasi","Reksadana","Emas","Crypto","Deposito","Properti","Cash","P2P Lending","SBN","Valuta Asing"];
+const PASTEL = ["#ffc2d1","#c3e0f7","#b8e6d5","#ffe8a3","#d9cdf5","#ffd6bb","#a8dadc","#f7c8e0","#cdeac0","#ffd3b6","#bde0fe","#e4c1f9"];
+const rp = n => 'Rp ' + Number(n||0).toLocaleString('id-ID');
+
+function Donut({ computed }) {
+  const ref = useRef(null); const chart = useRef(null);
+  useEffect(() => {
+    const labels=[], data=[], colors=[];
+    CLASSES.forEach((c,i)=>{ const v=computed[c]; if(v&&v.amount>0){labels.push(c);data.push(v.amount);colors.push(PASTEL[i%PASTEL.length]);} });
+    if (chart.current) chart.current.destroy();
+    if (!labels.length) { labels.push('Belum ada data'); data.push(1); colors.push('#eee6f2'); }
+    chart.current = new Chart(ref.current, {
+      type:'doughnut',
+      data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:4,borderColor:'#fff'}]},
+      options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{family:'Quicksand',size:12},boxWidth:12,padding:12,usePointStyle:true}}}}
+    });
+  }, [JSON.stringify(computed)]);
+  return html`<canvas id="donut" ref=${ref} height="260"></canvas>`;
+}
+
+function App() {
+  const [d,setD] = useState(null);
+  const [amount,setAmount] = useState('');
+  const [cls,setCls] = useState(CLASSES[0]);
+  const [editing,setEditing] = useState(null);
+  const [ep,setEp] = useState('');
+
+  const load = () => fetch('/api/portfolio').then(r=>r.json()).then(setD);
+  useEffect(()=>{ load(); },[]);
+
+  const add = async () => {
+    const amt = Number(String(amount).replace(/\D/g,''));
+    if (!amt) return alert('Isi nominal dulu ya 🌸');
+    const r = await fetch('/api/portfolio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:amt,class:cls})});
+    setD(await r.json()); setAmount('');
+  };
+  const del = async id => { const r = await fetch('/api/portfolio/'+id,{method:'DELETE'}); if(r.ok) setD(await r.json()); };
+  const savePrice = async c => {
+    const r = await fetch('/api/prices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[c]:{price:Number(ep)||0}})});
+    setD(await r.json()); setEditing(null);
+  };
+  const saveTarget = async (c,v) => {
+    const r = await fetch('/api/targets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[c]:Number(v)||0})});
+    setD(await r.json());
+  };
+
+  if (!d) return html`<div class="wrap"><p class="empty">Memuat... 🌷</p></div>`;
+
+  return html`<div class="wrap">
+    <h1>🌸 Portfolio Rebalancing Tracker</h1>
+    <p class="sub">Pantau porsi asset kamu, biar tetap seimbang dan sehat ✨</p>
+
+    <div class="card" style="text-align:center">
+      <div id="health" class=${'badge '+(d.healthy?'healthy':'sick')}>
+        ${d.healthy ? 'Portofolio Sehat ✅' : 'Perlu Rebalancing ⚠️'}
+      </div>
+      <div class="total">Total: ${rp(d.total)}</div>
+      <div class="muted">toleransi ±${d.tolerance}% dari target</div>
+    </div>
+
+    <div class="card">
+      <h2>➕ Tambah Nominal</h2>
+      <div class="row">
+        <input placeholder="Nominal (Rp)" value=${amount}
+          onInput=${e=>setAmount(e.target.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.'))} />
+        <select value=${cls} onChange=${e=>setCls(e.target.value)}>
+          ${CLASSES.map(c=>html`<option value=${c}>${c}</option>`)}
+        </select>
+        <button onClick=${add} style="flex:0 0 auto">Tambah 🎀</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>🍩 Porsi Portofolio</h2>
+        <${Donut} computed=${d.computed} />
+      </div>
+      <div class="card">
+        <h2>📊 Aktual vs Target</h2>
+        ${CLASSES.map(c=>{ const v=d.computed[c]; if(!v) return null;
+          if (v.amount===0 && v.target===0) return null;
+          return html`<div class="cls-row">
+            <div class="cls-head">
+              <span>${c} <span class=${'pill p-'+v.status}>${v.status==='ok'?'pas':v.status==='under'?'kurang':'lebih'}</span></span>
+              <span>${v.pct}% <span class="muted">/ ${v.target}%</span></span>
+            </div>
+            <div class=${'bar s-'+v.status}><i style=${'width:'+Math.min(100,v.pct)+'%'}></i></div>
+            <div class="muted" style="margin-top:5px">${rp(v.amount)} · selisih ${v.diff>0?'+':''}${v.diff}%
+              <input type="number" value=${v.target} style="width:70px;display:inline-block;padding:3px 8px;font-size:12px;margin-left:8px"
+                onChange=${e=>saveTarget(c,e.target.value)} /> % target
+            </div>
+          </div>`;
+        })}
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💰 Tabel Harga Acuan</h2>
+      <table>
+        <thead><tr><th>Asset Class</th><th>Origin Price</th><th>Currency</th><th>Note</th><th></th></tr></thead>
+        <tbody>
+        ${CLASSES.map(c=>{ const p=d.prices[c]||{};
+          return html`<tr>
+            <td style="font-weight:600">${c}</td>
+            <td>${editing===c
+              ? html`<input type="number" value=${ep} onInput=${e=>setEp(e.target.value)} style="width:130px;padding:5px 10px" />`
+              : Number(p.price||0).toLocaleString('id-ID')}</td>
+            <td>${p.currency||'-'}</td>
+            <td class="muted">${p.note||'-'}</td>
+            <td>${editing===c
+              ? html`<button class="mini" onClick=${()=>savePrice(c)}>simpan</button>`
+              : html`<button class="mini" onClick=${()=>{setEditing(c);setEp(p.price);}}>edit</button>`}</td>
+          </tr>`;
+        })}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>🧾 Daftar Entry (${d.entries.length})</h2>
+      ${d.entries.length===0
+        ? html`<div class="empty">Belum ada entry. Yuk tambah yang pertama! 🌱</div>`
+        : d.entries.slice().reverse().map(e=>html`<div class="entry">
+            <span><b>${rp(e.amount)}</b> · ${e.class}
+              <span class="muted"> · ${new Date(e.createdAt).toLocaleString('id-ID')}</span></span>
+            <button class="del mini" onClick=${()=>del(e.id)}>hapus</button>
+          </div>`)}
+    </div>
+  </div>`;
+}
+render(html`<${App} />`, document.getElementById('app'));
+</script>
+</body>
+</html>

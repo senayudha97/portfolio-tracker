@@ -1,0 +1,79 @@
+{
+  "entries": [],
+  "targets": {
+    "Saham IDX": 30,
+    "Saham US (S&P500)": 0,
+    "Obligasi": 20,
+    "Reksadana": 0,
+    "Emas": 15,
+    "Crypto": 5,
+    "Deposito": 20,
+    "Properti": 0,
+    "Cash": 10,
+    "P2P Lending": 0,
+    "SBN": 0,
+    "Valuta Asing": 0
+  },
+  "prices": {
+    "Saham IDX": {
+      "price": 7500,
+      "currency": "IDR",
+      "note": "IHSG"
+    },
+    "Saham US (S&P500)": {
+      "price": 5500,
+      "currency": "USD",
+      "note": "S&P500"
+    },
+    "Obligasi": {
+      "price": 1000,
+      "currency": "IDR",
+      "note": "unit"
+    },
+    "Reksadana": {
+      "price": 1000,
+      "currency": "IDR",
+      "note": "unit"
+    },
+    "Emas": {
+      "price": 1350000,
+      "currency": "IDR",
+      "note": "per gram"
+    },
+    "Crypto": {
+      "price": 95000,
+      "currency": "USD",
+      "note": "BTC"
+    },
+    "Deposito": {
+      "price": 1,
+      "currency": "IDR",
+      "note": "1:1"
+    },
+    "Properti": {
+      "price": 15000000,
+      "currency": "IDR",
+      "note": "per m2"
+    },
+    "Cash": {
+      "price": 1,
+      "currency": "IDR",
+      "note": "1:1"
+    },
+    "P2P Lending": {
+      "price": 1000,
+      "currency": "IDR",
+      "note": "unit"
+    },
+    "SBN": {
+      "price": 1000,
+      "currency": "IDR",
+      "note": "unit"
+    },
+    "Valuta Asing": {
+      "price": 16000,
+      "currency": "IDR",
+      "note": "USD rate"
+    }
+  }
+}
