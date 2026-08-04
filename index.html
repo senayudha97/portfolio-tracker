@@ -106,7 +106,7 @@ function App() {
   const [ep,setEp] = useState('');
 
   const load = () => fetch('/api/portfolio').then(r=>r.json()).then(setD);
-  useEffect(()=>{ load(); },[]);
+  useEffect(()=>{ load(); const t=setInterval(load,60000); return ()=>clearInterval(t); },[]);
 
   const add = async () => {
     const amt = Number(String(amount).replace(/\D/g,''));
@@ -177,15 +177,20 @@ function App() {
     <div class="card">
       <h2>💰 Tabel Harga Acuan</h2>
       <table>
-        <thead><tr><th>Asset Class</th><th>Origin Price</th><th>Currency</th><th>Note</th><th></th></tr></thead>
+        <thead><tr><th>Asset Class</th><th>Origin Price</th><th>Currency</th><th>Status</th><th>Updated</th><th>Note</th><th></th></tr></thead>
         <tbody>
         ${CLASSES.map(c=>{ const p=d.prices[c]||{};
+          const hasPrice = p.price!==null && p.price!==undefined && p.price!=='';
           return html`<tr>
             <td style="font-weight:600">${c}</td>
             <td>${editing===c
               ? html`<input type="number" value=${ep} onInput=${e=>setEp(e.target.value)} style="width:130px;padding:5px 10px" />`
-              : Number(p.price||0).toLocaleString('id-ID')}</td>
+              : (hasPrice ? Number(p.price).toLocaleString('id-ID') : '-')}</td>
             <td>${p.currency||'-'}</td>
+            <td>${p.live
+              ? html`<span class="pill p-ok" title="harga otomatis dari API">🟢 LIVE</span>`
+              : html`<span class="muted">static</span>`}</td>
+            <td class="muted">${p.updatedAt ? new Date(p.updatedAt).toLocaleString('id-ID') : '-'}</td>
             <td class="muted">${p.note||'-'}</td>
             <td>${editing===c
               ? html`<button class="mini" onClick=${()=>savePrice(c)}>simpan</button>`

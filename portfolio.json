@@ -16,64 +16,81 @@
   },
   "prices": {
     "Saham IDX": {
-      "price": 7500,
+      "price": 6256.79,
       "currency": "IDR",
-      "note": "IHSG"
+      "note": "IHSG (Yahoo live)",
+      "live": true,
+      "updatedAt": "2026-08-04T03:00:26.185Z"
     },
     "Saham US (S&P500)": {
-      "price": 5500,
+      "price": 7600.5,
       "currency": "USD",
-      "note": "S&P500"
+      "note": "S&P500 (Yahoo live)",
+      "live": true,
+      "updatedAt": "2026-08-04T03:00:26.185Z"
     },
     "Obligasi": {
       "price": 1000,
       "currency": "IDR",
-      "note": "unit"
+      "note": "unit",
+      "live": false
     },
     "Reksadana": {
       "price": 1000,
       "currency": "IDR",
-      "note": "unit"
+      "note": "unit",
+      "live": false
     },
     "Emas": {
-      "price": 1350000,
+      "price": 2380708.34,
       "currency": "IDR",
-      "note": "per gram"
+      "note": "Emas per gram (Yahoo GC=F live)",
+      "live": true,
+      "updatedAt": "2026-08-04T03:00:26.185Z"
     },
     "Crypto": {
-      "price": 95000,
+      "price": 63756,
       "currency": "USD",
-      "note": "BTC"
+      "note": "BTC (CoinGecko live)",
+      "live": true,
+      "updatedAt": "2026-08-04T03:00:26.185Z"
     },
     "Deposito": {
       "price": 1,
       "currency": "IDR",
-      "note": "1:1"
+      "note": "1:1",
+      "live": false
     },
     "Properti": {
       "price": 15000000,
       "currency": "IDR",
-      "note": "per m2"
+      "note": "per m2",
+      "live": false
     },
     "Cash": {
       "price": 1,
       "currency": "IDR",
-      "note": "1:1"
+      "note": "1:1",
+      "live": false
     },
     "P2P Lending": {
       "price": 1000,
       "currency": "IDR",
-      "note": "unit"
+      "note": "unit",
+      "live": false
     },
     "SBN": {
       "price": 1000,
       "currency": "IDR",
-      "note": "unit"
+      "note": "unit",
+      "live": false
     },
     "Valuta Asing": {
-      "price": 16000,
+      "price": 17986,
       "currency": "IDR",
-      "note": "USD rate"
+      "note": "USD/IDR (live)",
+      "live": true,
+      "updatedAt": "2026-08-04T03:00:26.185Z"
     }
   }
 }

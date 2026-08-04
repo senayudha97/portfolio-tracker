@@ -1,10 +1,12 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { refreshPrices } = require('./prices');
 
 const CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
 const DATA_FILE = path.join(__dirname, 'portfolio.json');
 const TOLERANCE = 5;
+const POLL_MS = 5 * 60 * 1000;
 
 const app = express();
 app.use(express.json());
@@ -98,7 +100,11 @@ app.post('/api/prices', (req, res) => {
   Object.keys(body).forEach(k => {
     if (k in db.prices) {
       const v = body[k] || {};
-      if (v.price !== undefined) db.prices[k].price = Number(v.price) || 0;
+      if (v.price !== undefined) {
+        db.prices[k].price = Number(v.price) || 0;
+        db.prices[k].live = false; // manual override
+        db.prices[k].updatedAt = new Date().toISOString();
+      }
       if (v.currency) db.prices[k].currency = String(v.currency);
       if (v.note !== undefined) db.prices[k].note = String(v.note);
     }
@@ -107,6 +113,19 @@ app.post('/api/prices', (req, res) => {
   res.json(payload());
 });
 
+async function pollPrices() {
+  try {
+    const db = load();
+    const updated = await refreshPrices(db);
+    save(db);
+    console.log(`[prices] ${new Date().toISOString()} live update: ${updated.length ? updated.join(', ') : '(none)'}`);
+  } catch (e) {
+    console.warn('[prices] poll error (diabaikan):', e && e.message);
+  }
+}
+
 app.listen(CONFIG.port, () => {
   console.log(`🌸 Portfolio Rebalancing Tracker jalan di http://localhost:${CONFIG.port}`);
+  pollPrices();
+  setInterval(pollPrices, POLL_MS);
 });
