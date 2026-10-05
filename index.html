@@ -5,90 +5,131 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Portfolio Rebalancing Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
-    --bg:#0f172a; --card:#1e293b; --line:#334155; --ink:#e2e8f0; --muted:#94a3b8;
-    --blue:#3b82f6; --blue-d:#2563eb; --emerald:#10b981; --amber:#f59e0b; --red:#ef4444;
-    --ok:#10b981; --under:#f59e0b; --over:#ef4444;
+    --bg:#000000; --fg:#ffffff; --fg-dim:#9a9a9a; --fg-faint:#555555; --line:#1c1c1c;
+    --mono:'Share Tech Mono','VT323',ui-monospace,'Courier New',monospace;
   }
   *{box-sizing:border-box}
   body{
-    margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--ink);
-    letter-spacing:-.01em;
-    background:var(--bg);
-    background-image:linear-gradient(180deg,#0f172a 0%,#111c33 60%,#0f172a 100%);
+    margin:0; font-family:var(--mono); color:var(--fg);
+    background-color:var(--bg);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px),
+      linear-gradient(180deg, #000000 0%, #1a1a1a 50%, #000000 100%),
+      radial-gradient(120% 90% at 50% -10%, rgba(255,255,255,.06), transparent 60%);
+    background-size:auto,100% 100%,100% 100%;
+    -webkit-font-smoothing:none;
+    text-shadow:0 0 4px rgba(255,255,255,.25);
+    line-height:1.5; letter-spacing:.02em;
     min-height:100vh; padding:28px 16px 60px;
   }
-  .wrap{max-width:1060px;margin:0 auto}
-  h1{font-size:30px;margin:0 0 4px;font-weight:800;letter-spacing:-.03em;color:#f8fafc}
-  .sub{color:var(--muted);margin:0 0 24px;font-size:15px}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:10px;
-    padding:22px 24px;margin-bottom:20px;
-    box-shadow:0 2px 8px rgba(0,0,0,.35);
+  ::selection{background:var(--fg);color:var(--bg)}
+  .scan{
+    position:fixed;inset:0;pointer-events:none;z-index:9;
+    background:linear-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,.04) 50%, rgba(255,255,255,0) 100%);
+    background-size:100% 6px;
+    animation:scan 8s linear infinite;
+    mix-blend-mode:screen;
   }
-  .card h2{font-size:16px;margin:0 0 16px;font-weight:700;letter-spacing:-.01em;color:#f1f5f9}
+  @keyframes scan{0%{background-position:0 -100%}100%{background-position:0 100%}}
+  .crt{
+    position:fixed;inset:0;pointer-events:none;z-index:10;
+    box-shadow:inset 0 0 140px rgba(0,0,0,.9);
+  }
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{
+    font-size:clamp(1.5rem,4.4vw,2.1rem);margin:0 0 6px;font-weight:400;
+    letter-spacing:.08em;color:var(--fg);text-transform:uppercase;
+    text-shadow:0 0 10px rgba(255,255,255,.35);
+  }
+  h1::after{content:'▮';margin-left:.18em;animation:blink 1.05s steps(1) infinite}
+  .sub{color:var(--fg-dim);margin:0 0 24px;font-size:.85rem}
+  .card{
+    background:rgba(0,0,0,.55);border:1px solid var(--line);border-radius:0;
+    padding:22px 24px;margin-bottom:20px;
+  }
+  .card h2{
+    font-size:.8rem;margin:0 0 16px;font-weight:400;color:var(--fg);
+    letter-spacing:.22em;text-transform:uppercase;filter:grayscale(1);
+  }
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   @media(max-width:860px){.grid2{grid-template-columns:1fr}}
   input,select{
-    font-family:inherit;font-size:15px;padding:11px 14px;border-radius:8px;
-    border:1px solid var(--line);background:#0f172a;color:var(--ink);outline:none;width:100%;
+    font-family:var(--mono);font-size:14px;padding:10px 12px;border-radius:0;
+    border:1px solid var(--line);background:#050505;color:var(--fg);outline:none;width:100%;
   }
-  input::placeholder{color:#64748b}
-  option{background:#0f172a;color:var(--ink)}
-  input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.25)}
+  input::placeholder{color:var(--fg-faint)}
+  option{background:#000;color:var(--fg)}
+  input:focus,select:focus{border-color:var(--fg);box-shadow:0 0 10px rgba(255,255,255,.18)}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
   .row>*{flex:1;min-width:150px}
   button{
-    font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;border:1px solid transparent;
-    border-radius:8px;padding:11px 20px;background:var(--blue-d);color:#fff;
-    transition:filter .12s, background .12s;
+    font-family:var(--mono);font-weight:400;font-size:14px;cursor:pointer;
+    border:1px solid var(--fg);border-radius:0;padding:10px 18px;
+    background:var(--fg);color:#000;text-shadow:none;
+    letter-spacing:.1em;text-transform:uppercase;
+    transition:border-color .15s,background .15s,box-shadow .15s;
   }
-  button:hover{filter:brightness(1.12)}
-  button.mini{padding:6px 12px;font-size:12px;border-radius:6px;background:#334155;color:#e2e8f0;border-color:#475569}
-  button.del{background:#7f1d1d;color:#fecaca;border-color:#991b1b}
+  button:hover{background:#fff;border-color:#fff;box-shadow:0 0 12px rgba(255,255,255,.35)}
+  button:disabled{opacity:.45;cursor:default;box-shadow:none}
+  button.mini{padding:5px 10px;font-size:11px;background:transparent;color:var(--fg-dim);border-color:var(--line);text-transform:none;letter-spacing:.04em}
+  button.mini:hover{background:transparent;color:var(--fg);border-color:var(--fg);box-shadow:0 0 8px rgba(255,255,255,.2)}
+  button.del{background:transparent;color:var(--fg);border:1px dashed var(--fg-dim)}
+  button.del:hover{background:transparent;border:1px solid var(--fg)}
   .badge{
-    display:inline-flex;align-items:center;gap:10px;font-size:20px;font-weight:700;
-    padding:14px 22px;border-radius:10px;border:1px solid;
+    display:inline-flex;align-items:center;gap:10px;font-size:1rem;
+    padding:12px 20px;border-radius:0;border:1px solid;
+    letter-spacing:.12em;text-transform:uppercase;
   }
-  .badge.healthy{background:rgba(16,185,129,.12);border-color:#10b981;color:#34d399}
-  .badge.sick{background:rgba(239,68,68,.12);border-color:#ef4444;color:#f87171}
-  .total{font-size:26px;font-weight:700;margin-top:12px;color:#f8fafc}
-  .cls-row{padding:12px 0;border-bottom:1px solid #293548}
+  .badge.healthy{background:transparent;border-color:#00ff66;color:#00ff66;text-shadow:0 0 6px rgba(0,255,102,.55);box-shadow:0 0 10px rgba(0,255,102,.18), inset 0 0 8px rgba(0,255,102,.07)}
+  .badge.sick{background:rgba(255,45,45,.06);border-color:#ff2d2d;color:#ff2d2d;text-shadow:0 0 6px rgba(255,45,45,.55);box-shadow:0 0 10px rgba(255,45,45,.18), inset 0 0 8px rgba(255,45,45,.07)}
+  .total{font-size:1.45rem;margin-top:12px;color:var(--fg);text-shadow:0 0 8px rgba(255,255,255,.35)}
+  .cls-row{padding:12px 0;border-bottom:1px solid var(--line)}
   .cls-row:last-child{border-bottom:none}
-  .cls-head{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:7px;gap:8px}
-  .bar{height:8px;border-radius:4px;background:#0f172a;border:1px solid #293548;overflow:hidden}
-  .bar>i{display:block;height:100%;border-radius:4px;transition:width .4s ease}
-  .s-ok>i{background:var(--ok)} .s-under>i{background:var(--under)} .s-over>i{background:var(--over)}
-  .pill{font-size:11px;padding:3px 8px;border-radius:5px;font-weight:600;font-family:ui-monospace,Menlo,monospace;letter-spacing:0}
-  .p-ok{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.4)}
-  .p-under{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.4)}
-  .p-over{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.4)}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
-  td{padding:10px;border-top:1px solid #293548}
-  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0f172a;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:14px}
-  .muted{color:var(--muted);font-size:12px}
-  .empty{color:var(--muted);text-align:center;padding:22px;font-size:14px}
-  canvas{max-width:100%!important}
+  .cls-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px;gap:8px}
+  .bar{height:10px;background:#000;border:1px solid var(--line);overflow:hidden}
+  .bar>i{display:block;height:100%;transition:width .4s ease}
+  .s-ok>i{background:#00ff66;box-shadow:0 0 8px rgba(0,255,102,.5)}
+  .s-under>i{background:#ff2d2d;box-shadow:0 0 8px rgba(255,45,45,.5)}
+  .s-over>i{background:repeating-linear-gradient(90deg,#ff2d2d 0 6px,#000 6px 10px);box-shadow:0 0 8px rgba(255,45,45,.4)}
+  .pill{font-size:10px;padding:2px 7px;font-weight:400;letter-spacing:.16em;text-transform:uppercase}
+  .p-ok{background:transparent;color:#00ff66;border:1px solid #00ff66;text-shadow:0 0 5px rgba(0,255,102,.5)}
+  .p-under{background:transparent;color:#ff2d2d;border:1px solid #ff2d2d;text-shadow:0 0 5px rgba(255,45,45,.5)}
+  .p-over{background:rgba(255,45,45,.1);color:#ff2d2d;border:1px solid #ff2d2d;text-shadow:0 0 5px rgba(255,45,45,.5)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--fg-faint);font-weight:400;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.2em;border-bottom:1px solid var(--line)}
+  td{padding:10px;border-top:1px solid var(--line);color:var(--fg)}
+  .entry{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#000;border:1px solid var(--line);border-radius:0;margin-bottom:8px;font-size:13px}
+  .muted{color:var(--fg-dim);font-size:12px}
+  .empty{color:var(--fg-faint);text-align:center;padding:22px;font-size:13px;filter:grayscale(1)}
+  canvas{max-width:100%!important;filter:saturate(.3) brightness(1.15)}
+  /* auth overlay */
+  #auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
+  #auth-overlay form.card{width:100%;max-width:340px;margin:0}
+  #auth-overlay .err{color:var(--fg);font-size:12px;margin:0 0 12px;border-left:2px solid var(--fg);padding-left:8px}
+  #auth-overlay button[type=submit]{width:100%;margin-top:14px}
   @media(max-width:640px){
     html,body{overflow-x:hidden}
     table,tbody,tr,td{display:block;width:100%}
     thead{display:none}
-    table{font-size:13px}
-    tbody tr{background:#0f172a;border:1px solid var(--line);border-radius:10px;padding:4px 2px;margin-bottom:10px}
+    table{font-size:12px}
+    tbody tr{background:#000;border:1px solid var(--line);border-radius:0;padding:4px 2px;margin-bottom:10px}
     tbody tr:last-child{margin-bottom:0}
-    td{border-top:none;border-bottom:1px solid #293548;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right}
+    td{border-top:none;border-bottom:1px solid var(--line);padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right}
     td:last-child{border-bottom:none;justify-content:flex-end}
-    td::before{content:attr(data-label);font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;text-align:left;flex:0 0 auto}
+    td::before{content:attr(data-label);color:var(--fg-faint);font-size:10px;text-transform:uppercase;letter-spacing:.16em;text-align:left;flex:0 0 auto}
     td:last-child::before{content:''}
     td input[type=number]{width:130px!important;max-width:55%}
   }
 </style>
 </head>
 <body>
+<div class="scan"></div>
+<div class="crt"></div>
 <div id="app"></div>
 <script type="module">
 import { h, render } from 'https://esm.sh/preact@10.19.3';
@@ -97,7 +138,7 @@ import htm from 'https://esm.sh/htm@3.1.1';
 const html = htm.bind(h);
 
 const CLASSES = ["Saham IDX","Saham US (S&P500)","Obligasi","Reksadana","Emas","Crypto","Deposito","Properti","Cash","P2P Lending","SBN","Valuta Asing"];
-const PASTEL = ["#3b82f6","#10b981","#f59e0b","#ef4444","#8b5cf6","#06b6d4","#64748b","#84cc16","#f97316","#14b8a6","#a855f7","#eab308"];
+const PASTEL = ["#e0e0e0","#9a9a9a","#6a6a6a","#d0d0d0","#555555","#b0b0b0","#808080","#c0c0c0","#4a4a4a","#a0a0a0","#757575","#8a8a8a"];
 const rp = n => 'Rp ' + Number(n||0).toLocaleString('id-ID');
 
 function Donut({ computed }) {
@@ -109,8 +150,8 @@ function Donut({ computed }) {
     if (!labels.length) { labels.push('Belum ada data'); data.push(1); colors.push('#334155'); }
     chart.current = new Chart(ref.current, {
       type:'doughnut',
-      data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#1e293b'}]},
-      options:{cutout:'66%',plugins:{legend:{position:'bottom',labels:{color:'#cbd5e1',font:{family:'Inter',size:12},boxWidth:10,padding:12,usePointStyle:true}}}}
+      data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:'#000000'}]},
+      options:{cutout:'66%',plugins:{legend:{position:'bottom',labels:{color:'#9a9a9a',font:{family:'Share Tech Mono, monospace',size:12},boxWidth:10,padding:12,usePointStyle:true}}}}
     });
   }, [JSON.stringify(computed)]);
   return html`<canvas id="donut" ref=${ref} height="260"></canvas>`;
@@ -125,20 +166,53 @@ function Growth({ history }) {
     const data = history.map(x => x.total);
     chart.current = new Chart(ref.current, {
       type:'line',
-      data:{labels,datasets:[{label:'Total Portofolio',data,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.15)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#3b82f6',borderWidth:2}]},
+      data:{labels,datasets:[{label:'Total Portofolio',data,borderColor:'#ffffff',backgroundColor:'rgba(255,255,255,.08)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#ffffff',borderWidth:2}]},
       options:{
         plugins:{
-          legend:{labels:{color:'#cbd5e1',font:{family:'Inter',size:12},usePointStyle:true,boxWidth:10}},
+          legend:{labels:{color:'#9a9a9a',font:{family:'Share Tech Mono, monospace',size:12},usePointStyle:true,boxWidth:10}},
           tooltip:{callbacks:{label:c=>'Rp '+Number(c.parsed.y||0).toLocaleString('id-ID')}}
         },
         scales:{
-          x:{ticks:{color:'#94a3b8',font:{family:'Inter',size:10},maxTicksLimit:8},grid:{color:'#293548'}},
-          y:{ticks:{color:'#94a3b8',font:{family:'Inter',size:10},callback:v=>'Rp '+Number(v).toLocaleString('id-ID')},grid:{color:'#293548'}}
+          x:{ticks:{color:'#9a9a9a',font:{family:'Share Tech Mono, monospace',size:10},maxTicksLimit:8},grid:{color:'#1c1c1c'}},
+          y:{ticks:{color:'#9a9a9a',font:{family:'Share Tech Mono, monospace',size:10},callback:v=>'Rp '+Number(v).toLocaleString('id-ID')},grid:{color:'#1c1c1c'}}
         }
       }
     });
   }, [JSON.stringify(history)]);
   return html`<canvas id="growth" ref=${ref} height="110"></canvas>`;
+}
+
+function AuthOverlay({ onLogin }) {
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault();
+    setBusy(true); setErr('');
+    try {
+      const r = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+      });
+      if (r.ok) { onLogin(); return; }
+      const j = await r.json().catch(() => ({}));
+      setErr(j.error || 'Login gagal');
+    } catch (_) { setErr('Tidak bisa terhubung ke server'); }
+    setBusy(false);
+  };
+  return html`<div id="auth-overlay">
+    <form class="card" onSubmit=${submit}>
+      <h2>🔐 Masuk</h2>
+      <p class="muted" style="margin:0 0 14px">Masuk untuk melihat portofolio kamu.</p>
+      ${err ? html`<p class="err">${err}</p>` : null}
+      <input style="margin-bottom:10px" placeholder="Username" value=${user}
+        autocomplete="username" onInput=${e=>setUser(e.target.value)} />
+      <input type="password" placeholder="Password" value=${pass}
+        autocomplete="current-password" onInput=${e=>setPass(e.target.value)} />
+      <button type="submit" disabled=${busy}>${busy ? 'Memeriksa...' : 'Masuk'}</button>
+    </form>
+  </div>`;
 }
 
 function App() {
@@ -147,32 +221,55 @@ function App() {
   const [drafts,setDrafts] = useState({});
   const [editing,setEditing] = useState(null);
   const [ep,setEp] = useState('');
+  const [me,setMe] = useState(null);
+  const [needLogin,setNeedLogin] = useState(false);
 
-  const loadHist = () => fetch('/api/history').then(r=>r.json()).then(j=>setHist(j.history||[]));
-  const load = () => fetch('/api/portfolio').then(r=>r.json()).then(setD);
-  useEffect(()=>{ load(); loadHist(); const t=setInterval(load,60000); return ()=>clearInterval(t); },[]);
+  const authFetch = (url, opts) => fetch(url, opts).then(r => {
+    if (r.status === 401) { setNeedLogin(true); throw new Error('unauthorized'); }
+    return r;
+  });
+  const loadHist = () => authFetch('/api/history').then(r=>r.json()).then(j=>setHist(j.history||[])).catch(()=>{});
+  const load = () => authFetch('/api/portfolio').then(r=>r.json()).then(setD).catch(()=>{});
+  useEffect(()=>{
+    fetch('/api/auth/me').then(r=>r.ok?r.json():Promise.reject()).then(j=>setMe(j.username)).catch(()=>{});
+    load(); loadHist(); const t=setInterval(load,60000); return ()=>clearInterval(t);
+  },[]);
+  const onLogin = () => { setNeedLogin(false); location.reload(); };
+  const logout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(()=>{});
+    location.reload();
+  };
 
   const updateValue = async c => {
     const raw = drafts[c];
     const val = Number(String(raw===undefined||raw===null?'':raw).replace(/\D/g,''));
     if (!isFinite(val)) return alert('Nilai tidak valid.');
     const r = await fetch('/api/portfolio/value',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({class:c,value:val})});
+    if (r.status === 401) { setNeedLogin(true); return; }
     if (r.ok) { setD(await r.json()); setDrafts(s=>({...s,[c]:undefined})); loadHist(); }
   };
   const savePrice = async c => {
     const r = await fetch('/api/prices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[c]:{price:Number(ep)||0}})});
+    if (r.status === 401) { setNeedLogin(true); return; }
     setD(await r.json()); setEditing(null);
   };
   const saveTarget = async (c,v) => {
     const r = await fetch('/api/targets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[c]:Number(v)||0})});
+    if (r.status === 401) { setNeedLogin(true); return; }
     setD(await r.json());
   };
 
+  if (needLogin) return html`<div class="wrap"></div><${AuthOverlay} onLogin=${onLogin} />`;
   if (!d) return html`<div class="wrap"><p class="empty">Memuat...</p></div>`;
 
   return html`<div class="wrap">
-    <h1>Portfolio Rebalancing Tracker</h1>
-    <p class="sub">Pantau alokasi aset dan jaga portofolio tetap seimbang.</p>
+    <div class="row" style="margin-bottom:0;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <h1>Portfolio Rebalancing Tracker</h1>
+        <p class="sub">Pantau alokasi aset dan jaga portofolio tetap seimbang.</p>
+      </div>
+      ${me ? html`<button class="mini" style="flex:0 0 auto" onClick=${logout} title="keluar (${me})">Keluar (${me})</button>` : null}
+    </div>
 
     <div class="card" style="text-align:center">
       <div id="health" class=${'badge '+(d.healthy?'healthy':'sick')}>

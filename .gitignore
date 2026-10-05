@@ -3,3 +3,6 @@ npm-debug.log*
 .env
 .DS_Store
 server.log
+.session-secret
+portfolio.json
+portfolio.json.migrated
